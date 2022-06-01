@@ -1,9 +1,11 @@
 #!/bin/bash
 #SNMP Load checker tool for nagios - LibreNMS
 #2022 - Konstantinos Merentitis
-#Version 1.0
+#Version 1.1
+#This monitoring plugin will alert you according to the Warning/Critical thresholds that you pass as arguments:
 
-#Usage: ./linux_load.sh [-H hostname] [-c SNMP community] (optional) [-I 1m Warning] [-O 5m Warning] [-P 15m Warning] [-J 1m Critical] [-K 5m Critical] [-L 15m Critical] 
+#Usage: ./check_snmp_load_bash.sh [-H hostname] [-c SNMP community] (optional) [-I 1m Warning] [-O 5m Warning] [-P 15m Warning] [-J 1m Critical] [-K 5m Critical] [-L 15m Critical] 
+#example: ./check_snmp_load_bash.sh -H 10.10.1.20 -c public -I 2 -O 2 -P 2 -J 2 -K 3 -L 3
 
 while getopts H:c:I:O:P:J:K:L: option
 do 
@@ -25,7 +27,6 @@ if [ "${community}" = "" ]; then
     community="public"
 fi
 
-
 l1m=$(snmpget -Oqv -v2c -c "${community}" "${host}" 1.3.6.1.4.1.2021.10.1.3.1)
 l5m=$(snmpget -Oqv -v2c -c "${community}" "${host}" 1.3.6.1.4.1.2021.10.1.3.2)
 l15m=$(snmpget -Oqv -v2c -c "${community}" "${host}" 1.3.6.1.4.1.2021.10.1.3.3)
@@ -40,7 +41,7 @@ echo "1m:$l1m 5m:$l5m 15m:$l15m"
 #Criticals
 
 if (( $(echo "$l1m > $c1m" |bc -l) )); then 
-        echo Load 1m is Critical; exit 2;
+        echo "Load 1m is Critical"; exit 2;
         
 fi
 
@@ -50,23 +51,23 @@ if (( $(echo "$l5m > $c5m" |bc -l) )); then
 fi
 
 if (( $(echo "$l15m > $c15m" |bc -l) )); then 
-        echo Load 15m is Critical; exit 2;
+        echo "Load 15m is Critical"; exit 2;
         
 fi
 
 #Warnings
 if (( $(echo "$l1m > $w1m" |bc -l) )); then 
-        echo Load 1m is Warning; exit 1;
+        echo "Load 1m is Warning"; exit 1;
         
 fi
 
 if (( $(echo "$l5m > $w5m" |bc -l) )); then 
-        echo Load 5m is Warning; exit 1;
+        echo "Load 5m is Warning"; exit 1;
         
 fi
 
 if (( $(echo "$l15m > $w15m" |bc -l) )); then 
-        Load 15m is Warning; exit 1;
+      echo "Load 15m is Warning"; exit 1;
         
 fi
 
@@ -74,4 +75,4 @@ if [[ -z $l1m || -z $l5m || -z $l15m ]]; then
   echo 'Cannot get Load output'; exit 2;
 fi
 
-echo Loads are OK && exit 0
+echo "Loads are OK" && exit 0
