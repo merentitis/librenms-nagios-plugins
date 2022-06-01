@@ -1,5 +1,5 @@
 #!/bin/bash
-#SNMP checker tool for nagios - LibreNMS
+#SNMP Load checker tool for nagios - LibreNMS
 #2022 - Konstantinos Merentitis
 #Version 1.0
 
